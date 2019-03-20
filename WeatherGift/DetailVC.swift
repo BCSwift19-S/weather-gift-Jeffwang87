@@ -29,7 +29,7 @@ class DetailVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         if currentPage != 0 {
-            self.locationsArray[0].getWeather {
+            self.locationsArray[currentPage].getWeather {
                 self.updateUserInterface()
             }           
         }
@@ -41,12 +41,14 @@ class DetailVC: UIViewController {
             getLocation()
         }
     }
+    
     func updateUserInterface() {
         locationLabel.text = locationsArray[currentPage].name
         dateLabel.text = locationsArray[currentPage].coordinates
         tempLabel.text = locationsArray[currentPage].currentTemp
         summaryLabel.text = locationsArray[currentPage].currentSummary
         currentImage.image = UIImage(named: locationsArray[currentPage].currentIcon)
+        print(locationsArray[currentPage].currentIcon)
     }
 }
 
@@ -78,7 +80,7 @@ extension DetailVC: CLLocationManagerDelegate {
         currentLocation = locations.last
         let currentLatitude = currentLocation.coordinate.latitude
         let currentlongtitude = currentLocation.coordinate.longitude
-        let currentCoordinates = "\(currentLatitude), \(currentlongtitude)"
+        let currentCoordinates = "\(currentLatitude),\(currentlongtitude)"
         dateLabel.text = currentCoordinates
         geoCoder.reverseGeocodeLocation(currentLocation, completionHandler:
             {placemarks, error in
@@ -89,10 +91,10 @@ extension DetailVC: CLLocationManagerDelegate {
                 print("Error retrieving place. Error Code: \(error!)")
                 place = "Unknown Weather Location"
                 }
-          self.locationsArray[0].name = place
-          self.locationsArray[0].coordinates = currentCoordinates
+                self.locationsArray[0].name = place
+                self.locationsArray[0].coordinates = currentCoordinates
                 self.locationsArray[0].getWeather {
-          self.updateUserInterface()
+                    self.updateUserInterface()
                 }
         })
     }
