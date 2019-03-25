@@ -11,7 +11,6 @@ import GooglePlaces
 
 class ListVC: UIViewController {
     @IBOutlet weak var tableView: UITableView!
-    
     @IBOutlet weak var editBarButton: UIBarButtonItem!
     @IBOutlet weak var addBarButton: UIBarButtonItem!
     
@@ -32,6 +31,15 @@ class ListVC: UIViewController {
             destination.locationsArray = locationsArray
     }
 }
+    
+    func saveLocations() {
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(locationsArray) {
+            UserDefaults.standard.set(encoded, forKey: "locationsArray")
+        } else {
+            print("ERROR")
+        }
+    }
     
     @IBAction func editBarButtonPressed(_ sender: UIBarButtonItem) {
         if tableView.isEditing == true{
@@ -67,6 +75,7 @@ extension ListVC: UITableViewDelegate, UITableViewDataSource {
         if editingStyle == .delete{
             locationsArray.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
+            saveLocations()
         }
     }
     
@@ -74,7 +83,7 @@ extension ListVC: UITableViewDelegate, UITableViewDataSource {
         let itemToMove = locationsArray[sourceIndexPath.row]
         locationsArray.remove(at: sourceIndexPath.row)
         locationsArray.insert(itemToMove, at: destinationIndexPath.row)
-        
+        saveLocations()
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -105,14 +114,13 @@ extension ListVC: UITableViewDelegate, UITableViewDataSource {
     }
     func updatetable(place: GMSPlace){
         let newIndexPath = IndexPath(row: locationsArray.count, section: 0)
-        var addlocation = WeatherLocation()
-        addlocation.name = place.name!
         let latitude = place.coordinate.latitude
         let longitude = place.coordinate.longitude
-        addlocation.coordinates = "\(latitude),\(longitude)"
-        print(addlocation.coordinates)
-        locationsArray.append(addlocation)
+        let newcoordinates = "\(latitude),\(longitude)"
+        let newWeatherLocation = WeatherLocation(name: place.name!, coordinates: newcoordinates)
+        locationsArray.append(newWeatherLocation)
         tableView.insertRows(at: [newIndexPath], with: .automatic)
+        saveLocations()
     }
 }
 
